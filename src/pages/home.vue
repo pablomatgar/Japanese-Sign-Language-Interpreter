@@ -1,0 +1,298 @@
+<template>
+  <f7-page name="home">
+    <!-- Top Navbar -->
+    <f7-navbar>
+      <f7-nav-left>{{ $t('title') }}</f7-nav-left>
+      <f7-nav-right>
+        <f7-chip smart-select :smart-select-params="{ openIn: 'sheet' }">
+          <template #media>
+            <img :src="$t('img')" />
+          </template>
+          <select
+            @change="changeLanguage($event)"
+            name="language"
+            v-model="key"
+          >
+            <option
+              :selected="selectedLang === lang"
+              v-for="(lang, i) in langs"
+              :key="`lang-${i}`"
+              :value="lang"
+            >
+              {{ $t(lang) }}
+            </option>
+          </select>
+        </f7-chip>
+      </f7-nav-right>
+    </f7-navbar>
+    <!-- Page content-->
+    <div v-show="!loaded" class="text-align-center">
+      <div class="preloader"></div>
+    </div>
+    <f7-block v-show="loaded">
+      <f7-row class="justify-content-center text-align-center camera-container">
+        <f-card>
+          <div class="camera" v-show="!isMobile()">
+            <video ref="videoRef" playsinline autoplay></video>
+          </div>
+          <div class="camera" v-show="isMobile()">
+            <img ref="imageRef" src="../static/icons/256x256.png" />
+          </div>
+        </f-card>
+      </f7-row>
+    </f7-block>
+    <f7-block class="result-container">
+      <h3 class="result">{{ result }}</h3>
+    </f7-block>
+  </f7-page>
+</template>
+
+<script>
+import { onMounted, ref, computed } from 'vue';
+import * as tmImage from '@teachablemachine/image';
+import { i18n } from '../js/app';
+export default {
+  setup() {
+    const langs = ['ja', 'es', 'en'];
+    const videoRef = ref(null);
+    const imageRef = ref(null);
+    const usermediaLoaded = ref(false);
+    const firstTimePredicted = ref(false);
+    const user = ref('何も');
+    const result = ref(null);
+    const width = 224;
+    const height = 224;
+    const predictionInterval = 500;
+    let model;
+    let predictionTimer = null;
+    let classes;
+    let labels;
+
+    // Setting up
+    onMounted(async () => {
+      if (isAndroid()) {
+        window.fetch = fetchPolyfill;
+      }
+      const URL = 'static/model/';
+      const modelURL = URL + 'model.json';
+      const metadataURL = URL + 'metadata.json';
+      model = await tmImage.load(modelURL, metadataURL);
+      classes = model.getTotalClasses();
+      labels = model.getClassLabels();
+      classify(imageRef.value);
+      if (
+        !isMobile() &&
+        navigator.mediaDevices &&
+        navigator.mediaDevices.getUserMedia
+      ) {
+        startUserMedia();
+      }
+      start();
+    });
+
+    const loaded = computed(() => {
+      if (isMobile()) {
+        return firstTimePredicted.value;
+      } else {
+        return usermediaLoaded.value && firstTimePredicted.value;
+      }
+    });
+
+    const start = async () => {
+      if (isMobile()) {
+        predictPhone();
+      } else {
+        predictBrowser();
+      }
+    };
+
+    const isMobile = () => {
+      return window.cordova && (isAndroid() || isIos());
+    };
+
+    const isAndroid = () => {
+      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+      if (/android/i.test(userAgent)) return true;
+      return false;
+    };
+
+    const isIos = () => {
+      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+      if (/iPad|iPhone|iPod/i.test(userAgent)) return true;
+      return false;
+    };
+
+    // Browser
+    const predictBrowser = () => {
+      if (!model || !videoRef.value) {
+        return;
+      }
+      predictionTimer = setInterval(() => {
+        classify(videoRef.value);
+        calculate();
+      }, predictionInterval);
+    };
+
+    const startUserMedia = () => {
+      const constraint = {
+        audio: false,
+        video: {
+          facingMode: 'environment',
+          width: { min: width, ideal: width, max: width, exact: width },
+          height: { min: height, ideal: height, max: height, exact: height },
+        },
+      };
+      const handleSuccess = (stream) => {
+        usermediaLoaded.value = true;
+        videoRef.value.srcObject = stream;
+      };
+      const handleError = (error) => {
+        alert(error.message);
+        usermediaLoaded.value = true;
+        console.log('Error: ', error.message, error.name);
+      };
+      navigator.mediaDevices
+        .getUserMedia(constraint)
+        .then(handleSuccess)
+        .catch(handleError);
+    };
+
+    // Phone
+    const predictPhone = () => {
+      if (!model || !window.plugin.CanvasCamera || !imageRef) {
+        return;
+      }
+      startCanvasCamera();
+      predictionTimer = setInterval(() => {
+        if (!imageRef || !imageRef.value || !imageRef.value.src) return;
+        classify(imageRef.value);
+        calculate();
+      }, predictionInterval);
+    };
+
+    const startCanvasCamera = () => {
+      const options = {
+        canvas: {
+          width: width,
+          height: height,
+        },
+        capture: {
+          width: width,
+          height: height,
+        },
+        use: 'file',
+        fps: 30,
+        hasThumbnail: false,
+        cameraFacing: 'front',
+      };
+      window.plugin.CanvasCamera.start(
+        options,
+        async (error) => {
+          alert('could not start canvas camera');
+        },
+        (data) => {
+          readImageFile(data);
+        }
+      );
+    };
+
+    const readImageFile = (data) => {
+      const protocol = 'file://';
+      let filepath = '';
+      if (isAndroid()) {
+        filepath = protocol + data.output.images.fullsize.file;
+      } else {
+        filepath = data.output.images.fullsize.file;
+      }
+      window.resolveLocalFileSystemURL(
+        filepath,
+        async (fileEntry) => {
+          fileEntry.file(
+            (file) => {
+              const reader = new FileReader();
+              reader.onloadend = async () => {
+                const blob = new Blob([new Uint8Array(reader.result)], {
+                  type: 'image/png',
+                });
+                imageRef.value.src = window.URL.createObjectURL(blob);
+              };
+              reader.readAsArrayBuffer(file);
+            },
+            (err) => {
+              console.log('read', err);
+            }
+          );
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+    };
+
+    // Calculations
+    const classify = (image) => {
+      model.predict(image).then((prediction) => {
+        let maxProbab = 0;
+        let index = 0;
+        for (let i = 0; i < classes; i++) {
+          if (prediction[i].probability.toFixed(2) > maxProbab) {
+            maxProbab = prediction[i].probability.toFixed(2);
+            index = i;
+          }
+        }
+        if (!firstTimePredicted.value) {
+          firstTimePredicted.value = true;
+        } else {
+          user.value = prediction[index].className;
+        }
+      });
+    };
+
+    const calculate = () => {
+      if (!user.value) {
+        result.value = i18n.global.t('何も');
+        return;
+      }
+      result.value = i18n.global.t(user.value);
+    };
+
+    // Change language function
+    const changeLanguage = (event) => {
+      i18n.global.locale = event.target.value;
+    };
+
+    return {
+      videoRef,
+      imageRef,
+      loaded,
+      user,
+      start,
+      result,
+      isMobile,
+      isIos,
+      isAndroid,
+      langs,
+      changeLanguage,
+    };
+  },
+};
+</script>
+
+<style scoped>
+.camera {
+  height: 224px;
+  width: 224px;
+  overflow: hidden;
+}
+
+.camera-container {
+  margin-bottom: 5px;
+}
+.result-container {
+  text-align: center;
+}
+
+.chip {
+  width: 100px;
+}
+</style>
