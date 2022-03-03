@@ -60,6 +60,7 @@ import * as tmImage from '@teachablemachine/image';
 import { fetch as fetchPolyfill } from 'whatwg-fetch';
 import { i18n } from '../js/app';
 import { settings } from '../js/settings';
+
 export default {
   setup() {
     const langs = ['ja', 'es', 'en'];
@@ -76,6 +77,7 @@ export default {
     let predictionTimer = null;
     let classes;
     let labels;
+    let selectedLang = i18n.global.locale;
 
     // Setting up
     onMounted(async () => {
@@ -83,16 +85,16 @@ export default {
         window.fetch = fetchPolyfill;
       }
       const URL = 'static/model/';
-      const modelURL = URL + 'model.json';
-      const metadataURL = URL + 'metadata.json';
+      const modelURL = `${URL}model.json`;
+      const metadataURL = `${URL}metadata.json`;
       model = await tmImage.load(modelURL, metadataURL);
       classes = model.getTotalClasses();
       labels = model.getClassLabels();
       classify(imageRef.value);
       if (
-        !isMobile() &&
-        navigator.mediaDevices &&
-        navigator.mediaDevices.getUserMedia
+        !isMobile()
+        && navigator.mediaDevices
+        && navigator.mediaDevices.getUserMedia
       ) {
         startUserMedia();
       }
@@ -102,9 +104,8 @@ export default {
     const loaded = computed(() => {
       if (isMobile()) {
         return firstTimePredicted.value;
-      } else {
-        return usermediaLoaded.value && firstTimePredicted.value;
       }
+      return usermediaLoaded.value && firstTimePredicted.value;
     });
 
     const start = async () => {
@@ -115,9 +116,7 @@ export default {
       }
     };
 
-    const isMobile = () => {
-      return window.cordova && (isAndroid() || isIos());
-    };
+    const isMobile = () => window.cordova && (isAndroid() || isIos());
 
     const isAndroid = () => {
       const userAgent = navigator.userAgent || navigator.vendor || window.opera;
@@ -147,18 +146,20 @@ export default {
         audio: false,
         video: {
           facingMode: 'environment',
-          width: { min: width, ideal: width, max: width, exact: width },
-          height: { min: height, ideal: height, max: height, exact: height },
+          width: {
+            min: width, ideal: width, max: width, exact: width,
+          },
+          height: {
+            min: height, ideal: height, max: height, exact: height,
+          },
         },
       };
       const handleSuccess = (stream) => {
         usermediaLoaded.value = true;
         videoRef.value.srcObject = stream;
       };
-      const handleError = (error) => {
-        alert(error.message);
+      const handleError = () => {
         usermediaLoaded.value = true;
-        console.log('Error: ', error.message, error.name);
       };
       navigator.mediaDevices
         .getUserMedia(constraint)
@@ -182,12 +183,12 @@ export default {
     const startCanvasCamera = () => {
       const options = {
         canvas: {
-          width: width,
-          height: height,
+          width,
+          height,
         },
         capture: {
-          width: width,
-          height: height,
+          width,
+          height,
         },
         use: 'file',
         fps: 30,
@@ -196,12 +197,11 @@ export default {
       };
       window.plugin.CanvasCamera.start(
         options,
-        async (error) => {
-          alert('could not start canvas camera');
+        async () => {
         },
         (data) => {
           readImageFile(data);
-        }
+        },
       );
     };
 
@@ -227,14 +227,12 @@ export default {
               };
               reader.readAsArrayBuffer(file);
             },
-            (err) => {
-              console.log('read', err);
-            }
+            () => {
+            },
           );
         },
-        (error) => {
-          console.log(error);
-        }
+        () => {
+        },
       );
     };
 
@@ -268,6 +266,7 @@ export default {
     // Change language function
     const changeLanguage = (event) => {
       i18n.global.locale = event.target.value;
+      selectedLang = event.target.value;
     };
 
     return {
@@ -282,6 +281,7 @@ export default {
       isAndroid,
       langs,
       changeLanguage,
+      selectedLang,
     };
   },
 };

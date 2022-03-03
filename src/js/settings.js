@@ -1,11 +1,11 @@
-import { reactive } from 'vue'
+import { reactive } from 'vue';
 
 export const settings = reactive({
-    value: 500,
-    setValue(value) {
-        this.value = value;
-    },
-    getValue() {
-        return this.value;
-    }
-})
+  value: 500,
+  setValue(value) {
+    this.value = value;
+  },
+  getValue() {
+    return this.value;
+  },
+});

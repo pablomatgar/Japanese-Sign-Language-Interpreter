@@ -1,8 +1,8 @@
 {
-    "name": "f7-vue3-minimal",
+    "name": "日本手話",
     "private": true,
     "version": "1.2.0",
-    "description": "f7-vue3-minimal",
+    "description": "Japanese Sign Language interpreter",
     "repository": "",
     "license": "UNLICENSED",
     "scripts": {
@@ -55,6 +55,10 @@
         "cross-env": "^7.0.3",
         "css-loader": "^5.2.6",
         "css-minimizer-webpack-plugin": "^3.0.0",
+        "eslint": "^8.10.0",
+        "eslint-config-airbnb-base": "^15.0.0",
+        "eslint-plugin-import": "^2.25.4",
+        "eslint-plugin-vue": "^8.5.0",
         "file-loader": "^6.2.0",
         "html-loader": "^2.1.2",
         "html-webpack-plugin": "^5.3.1",
