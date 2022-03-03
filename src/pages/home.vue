@@ -36,7 +36,7 @@
             <video ref="videoRef" playsinline autoplay></video>
           </div>
           <div class="camera" v-show="isMobile()">
-            <img ref="imageRef" src="../static/icons/256x256.png" />
+            <img ref="imageRef" src="static/icons/256x256.png" />
           </div>
         </f-card>
       </f7-row>
@@ -50,6 +50,7 @@
 <script>
 import { onMounted, ref, computed } from 'vue';
 import * as tmImage from '@teachablemachine/image';
+import { fetch as fetchPolyfill } from 'whatwg-fetch';
 import { i18n } from '../js/app';
 export default {
   setup() {

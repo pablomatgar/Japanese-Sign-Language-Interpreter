@@ -34,7 +34,7 @@ export const i18n = createI18n({
       え: 'え',
       お: 'お',
       何も: 'サインは検出されませんでした。',
-      img: '../static/svg/ja.svg',
+      img: 'static/svg/ja.svg',
       ja: '日本語',
       es: 'スペイン語',
       en: '英語'
@@ -47,7 +47,7 @@ export const i18n = createI18n({
       え: 'E',
       お: 'O',
       何も: 'No se detecta ningún signo.',
-      img: '../static/svg/es.svg',
+      img: 'static/svg/es.svg',
       ja: 'Japonés',
       es: 'Español',
       en: 'Inglés'
@@ -60,7 +60,7 @@ export const i18n = createI18n({
       え: 'E',
       お: 'O',
       何も: 'No sign detected.',
-      img: '../static/svg/en.svg',
+      img: 'static/svg/en.svg',
       ja: 'Japanese',
       es: 'Spanish',
       en: 'English'
