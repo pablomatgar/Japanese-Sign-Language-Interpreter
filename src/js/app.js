@@ -37,7 +37,8 @@ export const i18n = createI18n({
       img: 'static/svg/ja.svg',
       ja: '日本語',
       es: 'スペイン語',
-      en: '英語'
+      en: '英語',
+      settings: 'カメラの予測時間を調整します'
     },
     es: {
       title: 'Lengua de signos japonesa',
@@ -50,7 +51,8 @@ export const i18n = createI18n({
       img: 'static/svg/es.svg',
       ja: 'Japonés',
       es: 'Español',
-      en: 'Inglés'
+      en: 'Inglés',
+      settings: 'Adjust the prediction time of the camera'
     },
     en: {
       title: 'Japanese Sign Language',
@@ -63,7 +65,8 @@ export const i18n = createI18n({
       img: 'static/svg/en.svg',
       ja: 'Japanese',
       es: 'Spanish',
-      en: 'English'
+      en: 'English',
+      settings: 'Ajusta el tiempo de predicción de la cámara'
     },
   },
   // If you need to specify other options, you can set other options

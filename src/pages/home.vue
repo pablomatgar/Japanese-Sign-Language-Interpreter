@@ -2,7 +2,11 @@
   <f7-page name="home">
     <!-- Top Navbar -->
     <f7-navbar>
-      <f7-nav-left>{{ $t('title') }}</f7-nav-left>
+      <f7-nav-left>
+        <f7-link href="/settings" class="link">
+          <f7-icon f7="gear"></f7-icon>
+        </f7-link>
+      </f7-nav-left>
       <f7-nav-right>
         <f7-chip smart-select :smart-select-params="{ openIn: 'sheet' }">
           <template #media>
@@ -26,6 +30,9 @@
       </f7-nav-right>
     </f7-navbar>
     <!-- Page content-->
+    <f7-block class="title">
+      <h1>{{ $t('title') }}</h1>
+    </f7-block>
     <div v-show="!loaded" class="text-align-center">
       <div class="preloader"></div>
     </div>
@@ -52,6 +59,7 @@ import { onMounted, ref, computed } from 'vue';
 import * as tmImage from '@teachablemachine/image';
 import { fetch as fetchPolyfill } from 'whatwg-fetch';
 import { i18n } from '../js/app';
+import { settings } from '../js/settings';
 export default {
   setup() {
     const langs = ['ja', 'es', 'en'];
@@ -63,7 +71,7 @@ export default {
     const result = ref(null);
     const width = 224;
     const height = 224;
-    const predictionInterval = 500;
+    const predictionInterval = settings.getValue();
     let model;
     let predictionTimer = null;
     let classes;
@@ -295,5 +303,12 @@ export default {
 
 .chip {
   width: 100px;
+}
+.link {
+  color: #000000;
+}
+
+.title {
+  text-align: center;
 }
 </style>
