@@ -8,25 +8,7 @@
         </f7-link>
       </f7-nav-left>
       <f7-nav-right>
-        <f7-chip smart-select :smart-select-params="{ openIn: 'sheet' }">
-          <template #media>
-            <img :src="$t('img')" />
-          </template>
-          <select
-            @change="changeLanguage($event)"
-            name="language"
-            v-model="key"
-          >
-            <option
-              :selected="selectedLang === lang"
-              v-for="(lang, i) in langs"
-              :key="`lang-${i}`"
-              :value="lang"
-            >
-              {{ $t(lang) }}
-            </option>
-          </select>
-        </f7-chip>
+        <chip></chip>
       </f7-nav-right>
     </f7-navbar>
     <!-- Page content-->
@@ -60,10 +42,13 @@ import * as tmImage from '@teachablemachine/image';
 import { fetch as fetchPolyfill } from 'whatwg-fetch';
 import { i18n } from '../js/app';
 import { settings } from '../js/settings';
+import chip from '../components/chip.vue';
 
 export default {
+  components: {
+    chip,
+  },
   setup() {
-    const langs = ['ja', 'es', 'en'];
     const videoRef = ref(null);
     const imageRef = ref(null);
     const usermediaLoaded = ref(false);
@@ -77,7 +62,6 @@ export default {
     let predictionTimer = null;
     let classes;
     let labels;
-    let selectedLang = i18n.global.locale;
 
     // Setting up
     onMounted(async () => {
@@ -147,10 +131,16 @@ export default {
         video: {
           facingMode: 'environment',
           width: {
-            min: width, ideal: width, max: width, exact: width,
+            min: width,
+            ideal: width,
+            max: width,
+            exact: width,
           },
           height: {
-            min: height, ideal: height, max: height, exact: height,
+            min: height,
+            ideal: height,
+            max: height,
+            exact: height,
           },
         },
       };
@@ -197,8 +187,7 @@ export default {
       };
       window.plugin.CanvasCamera.start(
         options,
-        async () => {
-        },
+        async () => {},
         (data) => {
           readImageFile(data);
         },
@@ -227,12 +216,10 @@ export default {
               };
               reader.readAsArrayBuffer(file);
             },
-            () => {
-            },
+            () => {},
           );
         },
-        () => {
-        },
+        () => {},
       );
     };
 
@@ -263,12 +250,6 @@ export default {
       result.value = i18n.global.t(user.value);
     };
 
-    // Change language function
-    const changeLanguage = (event) => {
-      i18n.global.locale = event.target.value;
-      selectedLang = event.target.value;
-    };
-
     return {
       videoRef,
       imageRef,
@@ -279,9 +260,6 @@ export default {
       isMobile,
       isIos,
       isAndroid,
-      langs,
-      changeLanguage,
-      selectedLang,
     };
   },
 };

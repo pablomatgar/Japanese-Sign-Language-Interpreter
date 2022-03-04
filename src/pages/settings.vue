@@ -8,25 +8,7 @@
         </f7-link>
       </f7-nav-left>
       <f7-nav-right>
-        <f7-chip smart-select :smart-select-params="{ openIn: 'sheet' }">
-          <template #media>
-            <img :src="$t('img')" />
-          </template>
-          <select
-            @change="changeLanguage($event)"
-            name="language"
-            v-model="key"
-          >
-            <option
-              :selected="selectedLang === lang"
-              v-for="(lang, i) in langs"
-              :key="`lang-${i}`"
-              :value="lang"
-            >
-              {{ $t(lang) }}
-            </option>
-          </select>
-        </f7-chip>
+       <chip></chip>
       </f7-nav-right>
     </f7-navbar>
     <!-- Page content-->
@@ -50,22 +32,20 @@
 <script>
 import { settings } from '../js/settings';
 import { i18n } from '../js/app';
+import chip from '../components/chip.vue';
 
 export default {
+  components: {
+    chip,
+  },
   data() {
-    const langs = ['ja', 'es', 'en'];
     const changeSettings = (value) => {
       settings.setValue(value);
     };
-    // Change language function
-    const changeLanguage = (event) => {
-      i18n.global.locale = event.target.value;
-    };
+
     return {
       settings,
-      langs,
       changeSettings,
-      changeLanguage,
     };
   },
 };
