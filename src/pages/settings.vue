@@ -8,7 +8,7 @@
         </f7-link>
       </f7-nav-left>
       <f7-nav-right>
-       <chip></chip>
+        <chip></chip>
       </f7-nav-right>
     </f7-navbar>
     <!-- Page content-->
@@ -26,12 +26,15 @@
         @range:change="changeSettings"
       />
     </f7-block>
+    <f7-block class="bottom">
+      <p>{{ $t('developed') }}</p>
+      <p>{{ $t('version') }}</p>
+    </f7-block>
   </f7-page>
 </template>
 
 <script>
 import { settings } from '../js/settings';
-import { i18n } from '../js/app';
 import chip from '../components/chip.vue';
 
 export default {
@@ -57,5 +60,10 @@ export default {
 
 .title {
   text-align: center;
+}
+
+.bottom {
+  text-align: center;
+  margin-top: 90%;
 }
 </style>
