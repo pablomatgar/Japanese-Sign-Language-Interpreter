@@ -38,7 +38,9 @@ export const i18n = createI18n({
       ja: '日本語',
       es: 'スペイン語',
       en: '英語',
-      settings: 'カメラの予測時間を調整します',
+      settings: 'カメラの予測間隔を調整します',
+      developed: '開発：アシアル株式会社',
+      version: 'アプリバージョン：1.0.0',
     },
     es: {
       title: 'Lengua de signos japonesa',
@@ -52,7 +54,9 @@ export const i18n = createI18n({
       ja: 'Japonés',
       es: 'Español',
       en: 'Inglés',
-      settings: 'Adjust the prediction time of the camera',
+      settings: 'Ajusta el intervalo de predicción de la cámara',
+      developed: 'Desarrollado por Asial Corporation',
+      version: 'Versión de la App: 1.0.0',
     },
     en: {
       title: 'Japanese Sign Language',
@@ -66,11 +70,11 @@ export const i18n = createI18n({
       ja: 'Japanese',
       es: 'Spanish',
       en: 'English',
-      settings: 'Ajusta el tiempo de predicción de la cámara',
+      settings: 'Adjust the prediction interval of the camera',
+      developed: 'Developed by Asial Corporation',
+      version: 'App Version: 1.0.0',
     },
   },
-  // If you need to specify other options, you can set other options
-  // ...
 });
 
 // Init App with i!8n
