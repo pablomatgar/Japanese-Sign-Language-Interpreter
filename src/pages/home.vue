@@ -16,6 +16,7 @@
       <h1>{{ $t('title') }}</h1>
     </f7-block>
     <div v-show="!loaded" class="text-align-center">
+      loading ...
       <div class="preloader"></div>
     </div>
     <f7-block v-show="loaded">
@@ -72,6 +73,7 @@ export default {
       const modelURL = `${URL}model.json`;
       const metadataURL = `${URL}metadata.json`;
       model = await tmImage.load(modelURL, metadataURL);
+      alert('model loaded completed');
       classes = model.getTotalClasses();
       labels = model.getClassLabels();
       classify(imageRef.value);
@@ -80,6 +82,7 @@ export default {
         && navigator.mediaDevices
         && navigator.mediaDevices.getUserMedia
       ) {
+        alert('startUsermedia');
         startUserMedia();
       }
       start();
@@ -159,7 +162,17 @@ export default {
 
     // Phone
     const predictPhone = () => {
+      alert('predictPhone');
+      alert(!model);
+      try {
+        alert(!window.plugin.CanvasCamera);
+      } catch (e) {
+        // you will see the error as we are trying to access window.plugin.CanvasCamera when it is not ready
+        alert(e.message);
+      }
+      alert(!imageRef);
       if (!model || !window.plugin.CanvasCamera || !imageRef) {
+        alert('something null');
         return;
       }
       startCanvasCamera();
@@ -171,6 +184,7 @@ export default {
     };
 
     const startCanvasCamera = () => {
+      alert('startCanvasCamera');
       const options = {
         canvas: {
           width,
@@ -187,7 +201,9 @@ export default {
       };
       window.plugin.CanvasCamera.start(
         options,
-        async () => {},
+        async (e) => {
+          alert(e);
+        },
         (data) => {
           readImageFile(data);
         },

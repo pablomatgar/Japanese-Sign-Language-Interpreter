@@ -80,6 +80,12 @@ export const i18n = createI18n({
 // Init App with i!8n
 const app = createApp(App).use(i18n);
 
+document.addEventListener('deviceready', () => {
+  alert('deviceready');
+  // all the plugin and cordova function are ready once this function finished (device is ready)
+  // you can use this function in home.vue to start camera once the device is ready
+}, false);
+
 // Register Framework7 Vue Components
 registerComponents(app);
 
