@@ -77,7 +77,7 @@ export const i18n = createI18n({
   },
 });
 
-// Init App with i!8n
+// Init App with i18n
 const app = createApp(App).use(i18n);
 
 // Register Framework7 Vue Components
