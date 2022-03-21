@@ -25,7 +25,7 @@
             <video ref="videoRef" playsinline autoplay></video>
           </div>
           <div class="camera" v-show="isMobile()">
-            <img ref="imageRef" src="static/icons/256x256.png" />
+            <img ref="imageRef" src="static/sign.png" />
           </div>
         </f-card>
       </f7-row>
@@ -221,6 +221,14 @@ export default {
         predictBrowser();
       }
     };
+
+    document.addEventListener(
+      'deviceready',
+      () => {
+        start();
+      },
+      false,
+    );
 
     // Setting up
     onMounted(async () => {
