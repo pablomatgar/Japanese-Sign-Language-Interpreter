@@ -17,7 +17,6 @@ module.exports = {
   rules: {
     'import/prefer-default-export': 'off',
     'vue/multi-word-component-names': 'off',
-    'no-use-before-define': 'off',
     'no-plusplus': 'off',
     'import/extensions': 'off',
     'no-unused-vars': 'off',

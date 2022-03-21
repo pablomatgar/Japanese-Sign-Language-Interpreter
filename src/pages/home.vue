@@ -44,6 +44,18 @@ import { i18n } from '../js/app';
 import { settings } from '../js/settings';
 import chip from '../components/chip.vue';
 
+const isAndroid = () => {
+  const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+  if (/android/i.test(userAgent)) return true;
+  return false;
+};
+
+const isIos = () => {
+  const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+  if (/iPad|iPhone|iPod/i.test(userAgent)) return true;
+  return false;
+};
+
 export default {
   components: {
     chip,
@@ -63,55 +75,34 @@ export default {
     let classes;
     let labels;
 
-    // Setting up
-    onMounted(async () => {
-      if (isAndroid()) {
-        window.fetch = fetchPolyfill;
-      }
-      const URL = 'static/model/';
-      const modelURL = `${URL}model.json`;
-      const metadataURL = `${URL}metadata.json`;
-      model = await tmImage.load(modelURL, metadataURL);
-      classes = model.getTotalClasses();
-      labels = model.getClassLabels();
-      classify(imageRef.value);
-      if (
-        !isMobile()
-        && navigator.mediaDevices
-        && navigator.mediaDevices.getUserMedia
-      ) {
-        startUserMedia();
-      }
-      start();
-    });
-
-    const loaded = computed(() => {
-      if (isMobile()) {
-        return firstTimePredicted.value;
-      }
-      return usermediaLoaded.value && firstTimePredicted.value;
-    });
-
-    const start = async () => {
-      if (isMobile()) {
-        predictPhone();
-      } else {
-        predictBrowser();
-      }
-    };
-
+    // Checks
     const isMobile = () => window.cordova && (isAndroid() || isIos());
 
-    const isAndroid = () => {
-      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-      if (/android/i.test(userAgent)) return true;
-      return false;
+    // Calculations
+    const classify = (image) => {
+      model.predict(image).then((prediction) => {
+        let maxProbab = 0;
+        let index = 0;
+        for (let i = 0; i < classes; i++) {
+          if (prediction[i].probability.toFixed(2) > maxProbab) {
+            maxProbab = prediction[i].probability.toFixed(2);
+            index = i;
+          }
+        }
+        if (!firstTimePredicted.value) {
+          firstTimePredicted.value = true;
+        } else {
+          user.value = prediction[index].className;
+        }
+      });
     };
 
-    const isIos = () => {
-      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-      if (/iPad|iPhone|iPod/i.test(userAgent)) return true;
-      return false;
+    const calculate = () => {
+      if (!user.value) {
+        result.value = i18n.global.t('何も');
+        return;
+      }
+      result.value = i18n.global.t(user.value);
     };
 
     // Browser
@@ -158,42 +149,6 @@ export default {
     };
 
     // Phone
-    const predictPhone = () => {
-      if (!model || !window.plugin.CanvasCamera || !imageRef) {
-        return;
-      }
-      startCanvasCamera();
-      predictionTimer = setInterval(() => {
-        if (!imageRef || !imageRef.value || !imageRef.value.src) return;
-        classify(imageRef.value);
-        calculate();
-      }, predictionInterval);
-    };
-
-    const startCanvasCamera = () => {
-      const options = {
-        canvas: {
-          width,
-          height,
-        },
-        capture: {
-          width,
-          height,
-        },
-        use: 'file',
-        fps: 30,
-        hasThumbnail: false,
-        cameraFacing: 'front',
-      };
-      window.plugin.CanvasCamera.start(
-        options,
-        async () => {},
-        (data) => {
-          readImageFile(data);
-        },
-      );
-    };
-
     const readImageFile = (data) => {
       const protocol = 'file://';
       let filepath = '';
@@ -223,32 +178,78 @@ export default {
       );
     };
 
-    // Calculations
-    const classify = (image) => {
-      model.predict(image).then((prediction) => {
-        let maxProbab = 0;
-        let index = 0;
-        for (let i = 0; i < classes; i++) {
-          if (prediction[i].probability.toFixed(2) > maxProbab) {
-            maxProbab = prediction[i].probability.toFixed(2);
-            index = i;
-          }
-        }
-        if (!firstTimePredicted.value) {
-          firstTimePredicted.value = true;
-        } else {
-          user.value = prediction[index].className;
-        }
-      });
+    const startCanvasCamera = () => {
+      const options = {
+        canvas: {
+          width,
+          height,
+        },
+        capture: {
+          width,
+          height,
+        },
+        use: 'file',
+        fps: 30,
+        hasThumbnail: false,
+        cameraFacing: 'front',
+      };
+      window.plugin.CanvasCamera.start(
+        options,
+        async () => {},
+        (data) => {
+          readImageFile(data);
+        },
+      );
     };
 
-    const calculate = () => {
-      if (!user.value) {
-        result.value = i18n.global.t('何も');
+    const predictPhone = () => {
+      if (!model || !window.plugin.CanvasCamera || !imageRef) {
         return;
       }
-      result.value = i18n.global.t(user.value);
+      startCanvasCamera();
+      predictionTimer = setInterval(() => {
+        if (!imageRef || !imageRef.value || !imageRef.value.src) return;
+        classify(imageRef.value);
+        calculate();
+      }, predictionInterval);
     };
+
+    const start = async () => {
+      if (isMobile()) {
+        predictPhone();
+      } else {
+        predictBrowser();
+      }
+    };
+
+    // Setting up
+    onMounted(async () => {
+      if (isAndroid()) {
+        window.fetch = fetchPolyfill;
+      }
+      const URL = 'static/model/';
+      const modelURL = `${URL}model.json`;
+      const metadataURL = `${URL}metadata.json`;
+      model = await tmImage.load(modelURL, metadataURL);
+      classes = model.getTotalClasses();
+      labels = model.getClassLabels();
+      classify(imageRef.value);
+      if (
+        !isMobile()
+        && navigator.mediaDevices
+        && navigator.mediaDevices.getUserMedia
+      ) {
+        startUserMedia();
+      }
+      start();
+    });
+
+    const loaded = computed(() => {
+      if (isMobile()) {
+        return firstTimePredicted.value;
+      }
+      return usermediaLoaded.value && firstTimePredicted.value;
+    });
 
     return {
       videoRef,
@@ -258,8 +259,6 @@ export default {
       start,
       result,
       isMobile,
-      isIos,
-      isAndroid,
     };
   },
 };
