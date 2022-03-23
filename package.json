@@ -78,7 +78,6 @@
     },
     "cordova": {
         "plugins": {
-            "cordova-plugin-whitelist": {},
             "cordova-plugin-splashscreen": {},
             "monaca-plugin-monaca-core": {},
             "cordova-plugin-statusbar": {},
