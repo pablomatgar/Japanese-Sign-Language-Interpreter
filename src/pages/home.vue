@@ -203,7 +203,7 @@ export default {
     };
 
     const predictPhone = () => {
-      if (!model || !window.plugin.CanvasCamera || !imageRef) {
+      if (!(model && window.plugin && window.plugin.CanvasCamera && imageRef)) {
         return;
       }
       startCanvasCamera();
