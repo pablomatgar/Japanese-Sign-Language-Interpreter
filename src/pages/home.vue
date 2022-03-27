@@ -204,6 +204,9 @@ export default {
 
     const predictPhone = () => {
       if (!(model && window.plugin && window.plugin.CanvasCamera && imageRef)) {
+        if (!window.plugin.CanvasCamera) {
+          alert('window.plugin.CanvasCamera was not found');
+        }
         return;
       }
       startCanvasCamera();
