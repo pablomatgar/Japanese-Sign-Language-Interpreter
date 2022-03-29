@@ -252,7 +252,6 @@ export default {
       ) {
         startUserMedia();
       }
-      start();
     });
 
     const loaded = computed(() => {
