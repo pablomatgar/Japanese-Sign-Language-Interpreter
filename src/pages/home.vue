@@ -138,6 +138,7 @@ export default {
       const handleSuccess = (stream) => {
         usermediaLoaded.value = true;
         videoRef.value.srcObject = stream;
+        predictBrowser();
       };
       const handleError = () => {
         usermediaLoaded.value = true;
