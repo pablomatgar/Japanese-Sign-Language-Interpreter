@@ -20,6 +20,6 @@ module.exports = {
     'no-plusplus': 'off',
     'import/extensions': 'off',
     'no-unused-vars': 'off',
-    'disable-next-line no-alert': 'off',
+    'no-alert': 'off',
   },
 };

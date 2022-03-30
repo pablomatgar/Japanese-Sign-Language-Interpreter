@@ -70,8 +70,11 @@ export default {
     const width = 224;
     const height = 224;
     const predictionInterval = settings.getValue();
+    const modalTime = ref(500);
+    let modelLoaded = false;
     let model;
     let predictionTimer = null;
+    let modelCheckLoop = null;
     let classes;
     let labels;
 
@@ -229,7 +232,12 @@ export default {
     document.addEventListener(
       'deviceready',
       () => {
-        start();
+        modelCheckLoop = setInterval(() => {
+          if (modelLoaded === true) {
+            start();
+            modelLoaded = false;
+          }
+        }, modalTime);
       },
       false,
     );
@@ -243,6 +251,7 @@ export default {
       const modelURL = `${URL}model.json`;
       const metadataURL = `${URL}metadata.json`;
       model = await tmImage.load(modelURL, metadataURL);
+      modelLoaded = true;
       classes = model.getTotalClasses();
       labels = model.getClassLabels();
       classify(imageRef.value);
