@@ -70,7 +70,7 @@ export default {
     const width = 224;
     const height = 224;
     const predictionInterval = settings.getValue();
-    const modalTime = ref(500);
+    const modalTime = 500;
     let modelLoaded = false;
     let model;
     let predictionTimer = null;
@@ -229,13 +229,17 @@ export default {
       }
     };
 
+    const stopLoop = () => {
+      clearInterval(modelCheckLoop);
+    };
+
     document.addEventListener(
       'deviceready',
       () => {
         modelCheckLoop = setInterval(() => {
           if (modelLoaded === true) {
             start();
-            modelLoaded = false;
+            stopLoop();
           }
         }, modalTime);
       },
